@@ -28,6 +28,7 @@ struct FolderTile: View {
     @State private var isHovered = false
     @State private var showsInfo = false
     @State private var pressedAt: Date?
+    @State private var wasHeld = false
 
     private let holdTime = 0.4
 
@@ -58,11 +59,15 @@ struct FolderTile: View {
         // One gesture for both, timed by hand: on macOS a separate tap gesture would also
         // fire when a long press is released. A short press opens; holding shows details.
         .onLongPressGesture(minimumDuration: holdTime) {
+            wasHeld = true
             showsInfo = true
         } onPressingChanged: { pressing in
             if pressing {
                 pressedAt = Date()
-            } else if let pressedAt, Date().timeIntervalSince(pressedAt) < holdTime {
+                wasHeld = false
+            } else if !wasHeld, let pressedAt, Date().timeIntervalSince(pressedAt) < holdTime - 0.1 {
+                // The margin matters: SwiftUI can report the release a hair before the hold
+                // completes, and that must not count as a click.
                 open()
             }
         }
