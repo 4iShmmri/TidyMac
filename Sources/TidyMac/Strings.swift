@@ -23,6 +23,7 @@ enum Strings {
     static var size: String { pick("الحجم", "Size") }
     static var location: String { pick("المكان", "Location") }
     static var items: String { pick("عدد الملفات", "Files") }
+    static var copyPath: String { pick("نسخ المسار", "Copy path") }
     static var showInFinder: String { pick("إظهار في Finder", "Show in Finder") }
     static var tidyNow: String { pick("رتّب الآن", "Tidy now") }
     static var settings: String { pick("الإعدادات", "Settings") }

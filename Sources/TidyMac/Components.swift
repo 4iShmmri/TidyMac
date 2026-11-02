@@ -117,6 +117,7 @@ struct FileInfo: View {
 
     @State private var size: String?
     @State private var items: Int?
+    @State private var copied = false
 
     private var isFolder: Bool { file.hasDirectoryPath }
 
@@ -125,6 +126,17 @@ struct FileInfo: View {
     private var location: String {
         let place = isFolder ? file : file.deletingLastPathComponent()
         return (place.path as NSString).abbreviatingWithTildeInPath
+    }
+
+    /// Copies the full path of the file or folder itself, ready to paste anywhere.
+    private func copyPath() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(file.path, forType: .string)
+        copied = true
+        Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            copied = false
+        }
     }
 
     var body: some View {
@@ -140,10 +152,19 @@ struct FileInfo: View {
                 LabeledContent(Strings.items, value: "\(items)")
             }
             LabeledContent(Strings.location) {
-                Text(location)
-                    .textSelection(.enabled)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.trailing)
+                HStack(spacing: 6) {
+                    Text(location)
+                        .textSelection(.enabled)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.trailing)
+
+                    Button(action: copyPath) {
+                        Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                            .contentTransition(.symbolEffect(.replace))
+                    }
+                    .buttonStyle(.borderless)
+                    .help(Strings.copyPath)
+                }
             }
 
             Button(Strings.showInFinder) {
